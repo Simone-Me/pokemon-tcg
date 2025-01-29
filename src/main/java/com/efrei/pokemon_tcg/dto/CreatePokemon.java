@@ -10,7 +10,6 @@ public class CreatePokemon {
     private String name;
     private TypePokemon type;
     private int hp;
-
     @Positive
     private int level;
 

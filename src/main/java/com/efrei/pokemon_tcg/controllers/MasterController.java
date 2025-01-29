@@ -1,6 +1,5 @@
 package com.efrei.pokemon_tcg.controllers;
 
-import com.efrei.pokemon_tcg.constants.City;
 import com.efrei.pokemon_tcg.dto.CapturePokemon;
 import com.efrei.pokemon_tcg.models.Master;
 import com.efrei.pokemon_tcg.services.IMasterService;

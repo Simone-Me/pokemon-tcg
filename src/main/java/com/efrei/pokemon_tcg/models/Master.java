@@ -12,7 +12,6 @@ public class Master {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    //type UUID for id n not String ?
     private String uuid;
     private String name;
     private Integer age;
