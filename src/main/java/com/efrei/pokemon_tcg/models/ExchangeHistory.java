@@ -16,7 +16,6 @@ public class ExchangeHistory {
 
     private String masterFromUuid;
     private String masterToUuid;
-
     private String cardFromUuid;
     private String cardToUuid;
 

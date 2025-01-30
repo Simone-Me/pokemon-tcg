@@ -12,4 +12,8 @@ public interface IExchangeHistoryService {
     List<ExchangeHistory> getExchangesByMaster(String masterUuid);
 
     List<ExchangeHistory> getExchangesByDate(LocalDate startDate, LocalDate endDate);
+
+    List<ExchangeHistory> getExchangesByMasterAndDate(String masterUuid, LocalDate startDate, LocalDate endDate);
+
+
 }

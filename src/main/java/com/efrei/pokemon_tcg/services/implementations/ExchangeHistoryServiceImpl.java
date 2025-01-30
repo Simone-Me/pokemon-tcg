@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExchangeHistoryServiceImpl implements IExchangeHistoryService {
@@ -83,6 +84,16 @@ public class ExchangeHistoryServiceImpl implements IExchangeHistoryService {
     @Override
     public List<ExchangeHistory> getExchangesByDate(LocalDate startDate, LocalDate endDate) {
         return exchangeHistoryRepository.findByExchangeDateBetween(startDate, endDate);
+    }
+
+    @Override
+    public List<ExchangeHistory> getExchangesByMasterAndDate(String masterUuid, LocalDate startDate, LocalDate endDate) {
+        List<ExchangeHistory> exchangesByMaster = getExchangesByMaster(masterUuid);
+
+        return exchangesByMaster.stream()
+                .filter(exchange -> !exchange.getExchangeDate().toLocalDate().isBefore(startDate) &&
+                        !exchange.getExchangeDate().toLocalDate().isAfter(endDate))
+                .collect(Collectors.toList());
     }
 
     private CardPokemon findCardInMasterPackages(Master master, String cardUuid) {
