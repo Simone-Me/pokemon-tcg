@@ -43,7 +43,7 @@ public class DialyDrawServiceImpl implements IDailyDrawService {
 //TODO->CREATE new objects with the DTO security to not manipulate the BDD
         Optional<DailyDraw> todayDraw = dailyDrawRepository.findFirstByMasterAndDrawDate(master, today);
 
-        if (todayDraw.isEmpty()) {
+        if (!todayDraw.isEmpty()) {
             Map<String, String> errorResponse = new HashMap<>();
             throw new IllegalStateException("Vous avez déjà effectué votre tirage aujourd'hui !");
         } else {
