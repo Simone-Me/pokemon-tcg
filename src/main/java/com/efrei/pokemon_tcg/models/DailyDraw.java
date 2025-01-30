@@ -3,6 +3,7 @@ package com.efrei.pokemon_tcg.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -21,7 +22,7 @@ public class DailyDraw {
             joinColumns = @JoinColumn(name = "daily_draw_uuid"),
             inverseJoinColumns = @JoinColumn(name = "card_uuid")
     )
-    private List<CardPokemon> cardPokemon;
+    private List<CardPokemon> cardPokemon = new ArrayList<>();
 
     private LocalDate drawDate;
 

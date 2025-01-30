@@ -9,6 +9,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface DailyDrawRepository extends JpaRepository<DailyDraw, String> {
-    Optional<DailyDraw> findByMasterAndDrawDate(Master master, LocalDate drawDate);
+    Optional<DailyDraw> findFirstByMasterAndDrawDate(Master master, LocalDate drawDate);
 
 }

@@ -1,6 +1,7 @@
 package com.efrei.pokemon_tcg.services.implementations;
 
 import com.efrei.pokemon_tcg.dto.CapturePokemon;
+import com.efrei.pokemon_tcg.models.CardPokemon;
 import com.efrei.pokemon_tcg.models.Master;
 import com.efrei.pokemon_tcg.models.Pokemon;
 import com.efrei.pokemon_tcg.repositories.MasterRepository;
@@ -9,6 +10,7 @@ import com.efrei.pokemon_tcg.services.IPokemonService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -66,11 +68,49 @@ public class MasterServiceImpl implements IMasterService {
     }
 
     @Override
+    public boolean toggleCard(String masterUuid, String cardUuid) {
+        Master master = masterRepository.findById(masterUuid).orElse(null);
+        if (master == null) {
+            return false;
+        }
+        List<CardPokemon> primaryCards = master.getPackageCardsPrimary();
+        List<CardPokemon> secondaryCards = master.getPackageCardsSecondary();
+
+        CardPokemon cardToToggle = primaryCards.stream()
+                .filter(card -> card.getUuid().equals(cardUuid))
+                .findFirst()
+                .orElse(null);
+        if (cardToToggle != null) {
+            primaryCards.remove(cardToToggle);
+            secondaryCards.add(cardToToggle);
+
+        } else {
+            cardToToggle = secondaryCards.stream()
+                    .filter(card -> card.getUuid().equals(cardUuid))
+                    .findFirst()
+                    .orElse(null);
+            if (cardToToggle != null) {
+                if (primaryCards.size() >= 5) {
+                    throw new IllegalStateException("N'est pas possible d'avoir plus de 5 cartes dans le paquet primaire! Échanges d'abord une carte principale vers le paquet secondaire.");
+                }
+
+                secondaryCards.remove(cardToToggle);
+                primaryCards.add(cardToToggle);
+            } else {
+                throw new IllegalStateException("Vous avez déjà effectué votre tirage aujourd'hui !");
+            }
+        }
+        master.setPackageCardsPrimary(primaryCards);
+        master.setPackageCardsSecondary(secondaryCards);
+        masterRepository.save(master);
+        return true;
+    }
+
+    @Override
     public void capturePokemon(String uuid, CapturePokemon capturePokemon) {
         Master master = findById(uuid);
         Pokemon pokemon = pokemonService.findById(capturePokemon.getUuid());
         master.getPokemonsTeam().add(pokemon);
         masterRepository.save(master);
     }
-
 }

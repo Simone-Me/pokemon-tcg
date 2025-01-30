@@ -57,6 +57,15 @@ public class MasterController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PatchMapping("/{masterUuid}/toggle-card/{cardUuid}")
+    public ResponseEntity<?> toggleCardBetweenDecks(@PathVariable String masterUuid, @PathVariable String cardUuid) {
+        boolean toggled = masterService.toggleCard(masterUuid, cardUuid);
+        if (!toggled) {
+            return new ResponseEntity<>("Carte pokemon pas trouvée.", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @PatchMapping("/{uuid}/capture")
     public ResponseEntity<?> capturePokemnon(@PathVariable String uuid, @RequestBody CapturePokemon capturePokemon) {
         masterService.capturePokemon(uuid, capturePokemon);

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ICardPokemonService {
 
-    void createRandomCard();
+    CardPokemon createRandomCard();
 
     List<CardPokemon> findAll(Integer star);
 }

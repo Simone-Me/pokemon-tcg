@@ -1,5 +1,6 @@
 package com.efrei.pokemon_tcg.services.implementations;
 
+import com.efrei.pokemon_tcg.constants.TypeAttackCombo;
 import com.efrei.pokemon_tcg.constants.TypeAttackSimple;
 import com.efrei.pokemon_tcg.models.CardPokemon;
 import com.efrei.pokemon_tcg.models.Pokemon;
@@ -31,20 +32,26 @@ public class CardPokemonServiceImpl implements ICardPokemonService {
     }
 
     @Override
-    public void createRandomCard() {
+    public CardPokemon createRandomCard() {
         CardPokemon card = new CardPokemon();
 
         List<Pokemon> allPokemons = pokemonRepository.findAll();
         TypeAttackSimple randomAttack = TypeAttackSimple.getRandomAttack();
-        card.setAttackSimple(randomAttack);
-        //TODO-> search a pokemon info from Pokemon entity + coin flip id to add the second attack
-        card.setAttackCombo(null);
+
         card.setStar(generateRandomStar());
+        card.setAttackSimple(randomAttack);
+        if (card.getStar() >= 3) {
+            TypeAttackCombo randomAttackCombo = TypeAttackCombo.getRandomAttackCombo();
+            card.setAttackCombo(randomAttackCombo);
+        } else {
+            card.setAttackCombo(null);
+        }
 
         int randomIndex = random.nextInt(allPokemons.size());
         Pokemon randomPokemon = allPokemons.get(randomIndex);
         card.setPokemon(pokemonRepository.findById(randomPokemon.getUuid()).orElse(null));
         cardPokemonRepository.save(card);
+        return card;
     }
 
     private int generateRandomStar() {
