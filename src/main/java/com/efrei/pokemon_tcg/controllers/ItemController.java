@@ -1,12 +1,20 @@
 package com.efrei.pokemon_tcg.controllers;
 
-import com.efrei.pokemon_tcg.models.Item;
-import com.efrei.pokemon_tcg.models.Pokemon;
-import com.efrei.pokemon_tcg.services.IItemService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.efrei.pokemon_tcg.models.Item;
+import com.efrei.pokemon_tcg.services.IItemService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/items")
@@ -26,7 +34,7 @@ public class ItemController {
     @GetMapping("/{uuid}")
     public ResponseEntity<Item> getItem(@PathVariable String uuid) {
         Item item = itemService.findById(uuid);
-        if(item == null) {
+        if (item == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(itemService.findById(uuid), HttpStatus.OK);
@@ -41,7 +49,7 @@ public class ItemController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<?> deleteItem(@PathVariable String uuid) {
         boolean isDeleted = itemService.delete(uuid);
-        if(!isDeleted) {
+        if (!isDeleted) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -50,7 +58,7 @@ public class ItemController {
     @PutMapping("/{uuid}")
     public ResponseEntity<?> modifyItem(@PathVariable String uuid, @RequestBody Item updatedItem) {
         boolean isModified = itemService.update(uuid, updatedItem);
-        if(!isModified) {
+        if (!isModified) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.OK);
