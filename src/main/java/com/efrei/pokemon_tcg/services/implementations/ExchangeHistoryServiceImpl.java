@@ -34,7 +34,6 @@ public class ExchangeHistoryServiceImpl implements IExchangeHistoryService {
             throw new IllegalArgumentException("Un ou plusieurs dresseurs introuvables.");
         }
 
-        // Vérification de l'échange quotidien
         LocalDateTime now = LocalDateTime.now();
         List<ExchangeHistory> recentExchanges = exchangeHistoryRepository.findByMasterFromUuidOrMasterToUuid(
                 masterFromUuid, masterToUuid
@@ -47,31 +46,23 @@ public class ExchangeHistoryServiceImpl implements IExchangeHistoryService {
             throw new IllegalStateException("Un échange est déjà effectué entre ces dresseurs aujourd'hui.");
         }
 
-        // Trouver les cartes et les déplacer
-        CardPokemon cardFrom = masterFrom.getCards().stream()
-                .filter(card -> card.getUuid().equals(cardFromUuid))
-                .findFirst()
-                .orElse(null);
 
-        CardPokemon cardTo = masterTo.getCards().stream()
-                .filter(card -> card.getUuid().equals(cardToUuid))
-                .findFirst()
-                .orElse(null);
+        CardPokemon cardFrom = findCardInMasterPackages(masterFrom, cardFromUuid);
+        CardPokemon cardTo = findCardInMasterPackages(masterTo, cardToUuid);
 
         if (cardFrom == null || cardTo == null) {
             throw new IllegalArgumentException("Carte introuvable pour l'un ou l'autre dresseur.");
         }
 
-        masterFrom.getCards().remove(cardFrom);
-        masterTo.getCards().remove(cardTo);
+        removeCardFromMaster(masterFrom, cardFromUuid);
+        removeCardFromMaster(masterTo, cardToUuid);
 
-        masterFrom.getCards().add(cardTo);
-        masterTo.getCards().add(cardFrom);
+        addCardToMaster(masterFrom, cardTo);
+        addCardToMaster(masterTo, cardFrom);
 
         masterRepository.save(masterFrom);
         masterRepository.save(masterTo);
 
-        // Enregistrer l'échange dans l'historique
         ExchangeHistory history = new ExchangeHistory();
         history.setMasterFromUuid(masterFromUuid);
         history.setMasterToUuid(masterToUuid);
@@ -93,4 +84,38 @@ public class ExchangeHistoryServiceImpl implements IExchangeHistoryService {
     public List<ExchangeHistory> getExchangesByDate(LocalDate startDate, LocalDate endDate) {
         return exchangeHistoryRepository.findByExchangeDateBetween(startDate, endDate);
     }
+
+    private CardPokemon findCardInMasterPackages(Master master, String cardUuid) {
+        return master.getPackageCardsPrimary().stream()
+                .filter(card -> card.getUuid().equals(cardUuid))
+                .findFirst()
+                .orElse(master.getPackageCardsSecondary().stream()
+                        .filter(card -> card.getUuid().equals(cardUuid))
+                        .findFirst()
+                        .orElse(null));
+    }
+
+    private void removeCardFromMaster(Master master, String cardUuid) {
+        List<CardPokemon> primaryCards = master.getPackageCardsPrimary();
+        List<CardPokemon> secondaryCards = master.getPackageCardsSecondary();
+
+        if (!primaryCards.removeIf(card -> card.getUuid().equals(cardUuid))) {
+            secondaryCards.removeIf(card -> card.getUuid().equals(cardUuid));
+        }
+    }
+
+    private void addCardToMaster(Master master, CardPokemon card) {
+        List<CardPokemon> primaryCards = master.getPackageCardsPrimary();
+        List<CardPokemon> secondaryCards = master.getPackageCardsSecondary();
+
+        if (primaryCards.size() < 5) {
+            primaryCards.add(card);
+        } else {
+            secondaryCards.add(card);
+        }
+
+        master.setPackageCardsPrimary(primaryCards);
+        master.setPackageCardsSecondary(secondaryCards);
+    }
+
 }
