@@ -24,14 +24,13 @@ public class PokemonController {
 
     @GetMapping
     public ResponseEntity<List<Pokemon>> getAll(@RequestParam(required = false) TypePokemon type) {
-        // SELECT * from pokemon;
         return new ResponseEntity<>(pokemonService.findAll(type), HttpStatus.OK);
     }
 
     @GetMapping("/{uuid}")
     public ResponseEntity<Pokemon> getPokemon(@PathVariable String uuid) {
         Pokemon pokemon = pokemonService.findById(uuid);
-        if(pokemon == null) {
+        if (pokemon == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(pokemonService.findById(uuid), HttpStatus.OK);
@@ -44,7 +43,7 @@ public class PokemonController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping("/random")
+    @GetMapping("/random")
     public ResponseEntity<?> createRandomPokemon() {
         pokemonService.createRandomPokemon();
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -53,7 +52,7 @@ public class PokemonController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<?> deletePokemon(@PathVariable String uuid) {
         boolean isDeleted = pokemonService.delete(uuid);
-        if(!isDeleted) {
+        if (!isDeleted) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -62,7 +61,7 @@ public class PokemonController {
     @PutMapping("/{uuid}")
     public ResponseEntity<?> modifyPokemon(@PathVariable String uuid, @RequestBody Pokemon updatedPokemon) {
         boolean isModified = pokemonService.update(uuid, updatedPokemon);
-        if(!isModified) {
+        if (!isModified) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.OK);

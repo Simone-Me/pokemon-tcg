@@ -25,7 +25,7 @@ public class MasterController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<Master> getMater(@PathVariable String uuid) {
+    public ResponseEntity<Master> getMaster(@PathVariable String uuid) {
         Master master = masterService.findById(uuid);
         if (master == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

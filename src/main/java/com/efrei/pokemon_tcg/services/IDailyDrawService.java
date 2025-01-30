@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface IDailyDrawService {
     List<CardPokemon> drawDailyCards(Master master);
+
+    void addCardToMaster(Master master, CardPokemon card);
+
 }

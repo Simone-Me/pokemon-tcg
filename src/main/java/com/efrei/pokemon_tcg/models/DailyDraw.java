@@ -12,9 +12,15 @@ public class DailyDraw {
     private String uuid;
 
     @ManyToOne
+    @JoinColumn(name = "master_uuid")
     private Master master;
 
-    @OneToMany
+    @ManyToMany
+    @JoinTable(
+            name = "daily_draw_cards",
+            joinColumns = @JoinColumn(name = "daily_draw_uuid"),
+            inverseJoinColumns = @JoinColumn(name = "card_uuid")
+    )
     private List<CardPokemon> cardPokemon;
 
     private LocalDate drawDate;

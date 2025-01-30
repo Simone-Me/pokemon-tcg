@@ -4,7 +4,6 @@ import com.efrei.pokemon_tcg.constants.City;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,6 +18,10 @@ public class Master {
     private LocalDateTime deleteAt;
     @OneToMany
     private List<Pokemon> pokemonsTeam;
+    @OneToMany
+    private List<CardPokemon> packageCardsPrimary;
+    @OneToMany
+    private List<CardPokemon> packageCardsSecondary;
 
     public Master(String name, Integer age, City city) {
         this.name = name;
@@ -67,5 +70,29 @@ public class Master {
 
     public void setDeleteAt(LocalDateTime deleteAt) {
         this.deleteAt = deleteAt;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public List<CardPokemon> getPackageCardsSecondary() {
+        return packageCardsSecondary;
+    }
+
+    public void setPackageCardsSecondary(List<CardPokemon> packageCardsSecondary) {
+        this.packageCardsSecondary = packageCardsSecondary;
+    }
+
+    public List<CardPokemon> getPackageCardsPrimary() {
+        return packageCardsPrimary;
+    }
+
+    public void setPackageCardsPrimary(List<CardPokemon> packageCardsPrimary) {
+        this.packageCardsPrimary = packageCardsPrimary;
     }
 }
