@@ -28,4 +28,11 @@ public class CardPokemonController {
         CardPokemon createdCard = cardPokemonService.createRandomCard();
         return new ResponseEntity<>(createdCard, HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<?> deleteCard(@PathVariable String uuid) {
+        cardPokemonService.deleteCardByUuid(uuid);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

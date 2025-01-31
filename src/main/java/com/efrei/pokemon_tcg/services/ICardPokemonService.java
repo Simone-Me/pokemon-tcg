@@ -10,4 +10,7 @@ public interface ICardPokemonService {
     CardPokemon createRandomCard();
 
     List<CardPokemon> findAll(Integer star);
+
+    void deleteCardByUuid(String uuid);
+
 }
