@@ -26,7 +26,7 @@ public class DailyDrawController {
         return new ResponseEntity<>(dailyDrawService.getAll(), HttpStatus.OK);
     }
 
-    @GetMapping("/{uuid}")
+    @PostMapping("/{uuid}")
     public ResponseEntity<?> getDrawDailyCards(@PathVariable String uuid) {
         Master master = masterService.findById(uuid);
         try {

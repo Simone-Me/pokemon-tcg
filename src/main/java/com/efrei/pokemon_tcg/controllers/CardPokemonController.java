@@ -4,10 +4,7 @@ import com.efrei.pokemon_tcg.models.CardPokemon;
 import com.efrei.pokemon_tcg.services.ICardPokemonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,11 +23,9 @@ public class CardPokemonController {
         return new ResponseEntity<>(cardPokemonService.findAll(star), HttpStatus.OK);
     }
 
-    @GetMapping("/random")
+    @PostMapping("/random")
     public ResponseEntity<?> createRandomCard() {
         CardPokemon createdCard = cardPokemonService.createRandomCard();
         return new ResponseEntity<>(createdCard, HttpStatus.CREATED);
     }
-
-
 }

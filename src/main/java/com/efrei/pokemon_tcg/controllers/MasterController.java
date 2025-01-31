@@ -91,7 +91,6 @@ public class MasterController {
         }
     }
 
-
     @PatchMapping("/{uuid}/capture")
     public ResponseEntity<?> capturePokemnon(@PathVariable String uuid, @RequestBody CapturePokemon capturePokemon) {
         masterService.capturePokemon(uuid, capturePokemon);
