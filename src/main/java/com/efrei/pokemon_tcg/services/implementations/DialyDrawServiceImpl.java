@@ -40,7 +40,6 @@ public class DialyDrawServiceImpl implements IDailyDrawService {
         List<CardPokemon> drawnCards = new ArrayList<>();
         List<Map<String, String>> responseMessages = new ArrayList<>();
 
-//TODO->CREATE new objects with the DTO security to not manipulate the BDD
         Optional<DailyDraw> todayDraw = dailyDrawRepository.findFirstByMasterAndDrawDate(master, today);
 
         if (!todayDraw.isEmpty()) {
@@ -61,12 +60,12 @@ public class DialyDrawServiceImpl implements IDailyDrawService {
                     primaryCards.add(newCard);
                     logMessage.put("card", newCard.getPokemon().getName());
                     logMessage.put("location", "1 carte ajouté au package primaire");
-                    //responseMessages.add(logMessage);
+
                 } else {
                     secondaryCards.add(newCard);
                     logMessage.put("card", newCard.getPokemon().getName());
                     logMessage.put("location", "1 carte ajouté au package secondaire");
-                    //responseMessages.add(logMessage);
+
                 }
                 responseMessages.add(new HashMap<>(logMessage));
             }
@@ -80,7 +79,6 @@ public class DialyDrawServiceImpl implements IDailyDrawService {
 
     @Override
     public void addCardToMaster(Master master, CardPokemon card) {
-        // TODO-> Associazione di una carta al "packageCardsPrimary" del Master e controllare se si può mettere nel pacco uno fino a 5 se no andare al secondo
         List<CardPokemon> primaryCards = master.getPackageCardsPrimary();
         if (primaryCards == null) {
             primaryCards = new ArrayList<>();

@@ -1,15 +1,18 @@
 package com.efrei.pokemon_tcg.controllers;
 
 import com.efrei.pokemon_tcg.dto.ExchangeRequestDTO;
+import com.efrei.pokemon_tcg.models.ExchangeHistory;
 import com.efrei.pokemon_tcg.services.IExchangeHistoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
-@RequestMapping("/exchange")
+@RequestMapping("/exchanges")
 public class ExchangeHistoryController {
     private final IExchangeHistoryService exchangeHistoryService;
 
@@ -29,48 +32,76 @@ public class ExchangeHistoryController {
             );
 
             if (success) {
-                return ResponseEntity.ok("Exchange completed successfully!");
+                return ResponseEntity.ok("Exchange reussi !");
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exchange failed.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exchange échoué.");
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur: " + e.getMessage());
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Erreur: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Un erreur est apparu : " + e.getMessage());
         }
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllExchangesByDate(
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate
-    ) {
+    @GetMapping
+    public ResponseEntity<?> getAllExchanges(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer day) {
         try {
-            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.MIN;
-            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.MAX;
+            LocalDate startDate = buildStartDate(year, month, day);
+            LocalDate endDate = buildEndDate(year, month, day);
 
-            return ResponseEntity.ok(exchangeHistoryService.getExchangesByDate(start, end));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date format: " + e.getMessage());
+            LocalDateTime startDateTime = startDate.atStartOfDay();
+            LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+            List<ExchangeHistory> exchanges = exchangeHistoryService.getExchangesByDate(startDateTime, endDateTime);
+
+            return ResponseEntity.ok(exchanges);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @GetMapping("/master/{masterUuid}")
-    public ResponseEntity<?> getExchangesByMasterAndDate(
+
+    @GetMapping("/{masterUuid}")
+    public ResponseEntity<?> getExchangesByMaster(
             @PathVariable String masterUuid,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate
-    ) {
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer day) {
         try {
-            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.MIN;
-            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.MAX;
 
-            return ResponseEntity.ok(exchangeHistoryService.getExchangesByMasterAndDate(masterUuid, start, end));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date format: " + e.getMessage());
+            LocalDate startDate = buildStartDate(year, month, day);
+            LocalDate endDate = buildEndDate(year, month, day);
+
+            LocalDateTime startDateTime = startDate.atStartOfDay();
+            LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+            List<ExchangeHistory> exchanges = exchangeHistoryService.getExchangesByMasterAndDate(masterUuid, startDateTime, endDateTime);
+
+            return ResponseEntity.ok(exchanges);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
+
+    private LocalDate buildStartDate(Integer year, Integer month, Integer day) {
+        if (year == null) return LocalDate.of(1970, 1, 1);
+        if (month == null) return LocalDate.of(year, 1, 1);
+        if (day == null) return LocalDate.of(year, month, 1);
+        return LocalDate.of(year, month, day);
+    }
+
+    private LocalDate buildEndDate(Integer year, Integer month, Integer day) {
+        if (year == null) return LocalDate.now();
+        if (month == null) return LocalDate.of(year, 12, 31);
+        if (day == null) return LocalDate.of(year, month, LocalDate.of(year, month, 1).lengthOfMonth());
+        return LocalDate.of(year, month, day);
+    }
+
 
 }

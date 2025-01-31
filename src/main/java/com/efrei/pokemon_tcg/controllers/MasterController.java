@@ -1,6 +1,8 @@
 package com.efrei.pokemon_tcg.controllers;
 
+import com.efrei.pokemon_tcg.constants.City;
 import com.efrei.pokemon_tcg.dto.CapturePokemon;
+import com.efrei.pokemon_tcg.dto.MasterDTO;
 import com.efrei.pokemon_tcg.models.Master;
 import com.efrei.pokemon_tcg.services.IMasterService;
 import jakarta.validation.Valid;
@@ -34,10 +36,15 @@ public class MasterController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createMaster(@Valid @RequestBody Master master) {
+    public ResponseEntity<?> createMaster(@Valid @RequestBody MasterDTO masterDTO) {
+        Master master = new Master();
+        master.setName(masterDTO.getName());
+        master.setAge(masterDTO.getAge());
+        master.setCity(City.valueOf(masterDTO.getCity()));
         masterService.create(master);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
 
     @DeleteMapping("/{uuid}")
     public ResponseEntity<?> deleteMaster(@PathVariable String uuid) {
@@ -49,13 +56,18 @@ public class MasterController {
     }
 
     @PutMapping("/{uuid}")
-    public ResponseEntity<?> modifyMaster(@PathVariable String uuid, @RequestBody Master updatedMaster) {
+    public ResponseEntity<?> modifyMaster(@PathVariable String uuid, @Valid @RequestBody MasterDTO updatedMasterDTO) {
+        Master updatedMaster = new Master();
+        updatedMaster.setName(updatedMasterDTO.getName());
+        updatedMaster.setAge(updatedMasterDTO.getAge());
+        updatedMaster.setCity(City.valueOf(updatedMasterDTO.getCity()));
         boolean isModified = masterService.update(uuid, updatedMaster);
         if (!isModified) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
     @PatchMapping("/{masterUuid}/toggle-card/{cardUuid}")
     public ResponseEntity<?> toggleCardBetweenDecks(@PathVariable String masterUuid, @PathVariable String cardUuid) {
@@ -65,6 +77,20 @@ public class MasterController {
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PatchMapping("/{challengerUuid}/challenge/{opponentUuid}")
+    public ResponseEntity<String> challengeMaster(@PathVariable String challengerUuid, @PathVariable String opponentUuid) {
+        try {
+            boolean challengerWins = masterService.challenge(challengerUuid, opponentUuid);
+            String message = challengerWins
+                    ? "Le challenger a gagné et a récupéré la meilleure carte de l'opposant !"
+                    : "Le challenger a perdu et l'opposant a récupéré sa meilleure carte.";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     @PatchMapping("/{uuid}/capture")
     public ResponseEntity<?> capturePokemnon(@PathVariable String uuid, @RequestBody CapturePokemon capturePokemon) {

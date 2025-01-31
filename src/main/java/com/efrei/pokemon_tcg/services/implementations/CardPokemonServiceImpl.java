@@ -36,10 +36,13 @@ public class CardPokemonServiceImpl implements ICardPokemonService {
         CardPokemon card = new CardPokemon();
 
         List<Pokemon> allPokemons = pokemonRepository.findAll();
-        TypeAttackSimple randomAttack = TypeAttackSimple.getRandomAttack();
+        if (allPokemons.isEmpty()) {
+            throw new IllegalStateException("Aucun Pokemon est disponible.");
+        }
 
         card.setStar(generateRandomStar());
-        card.setAttackSimple(randomAttack);
+        card.setAttackSimple(TypeAttackSimple.getRandomAttack());
+
         if (card.getStar() >= 3) {
             TypeAttackCombo randomAttackCombo = TypeAttackCombo.getRandomAttackCombo();
             card.setAttackCombo(randomAttackCombo);
@@ -49,10 +52,14 @@ public class CardPokemonServiceImpl implements ICardPokemonService {
 
         int randomIndex = random.nextInt(allPokemons.size());
         Pokemon randomPokemon = allPokemons.get(randomIndex);
-        card.setPokemon(pokemonRepository.findById(randomPokemon.getUuid()).orElse(null));
+
+        card.setPokemon(pokemonRepository.findById(randomPokemon.getUuid())
+                .orElseThrow(() -> new IllegalStateException("Pokemon pas trouvé dans le BDD.")));
+
         cardPokemonRepository.save(card);
         return card;
     }
+
 
     private int generateRandomStar() {
         int chance = random.nextInt(100);

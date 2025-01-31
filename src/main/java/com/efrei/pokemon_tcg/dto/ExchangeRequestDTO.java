@@ -6,7 +6,6 @@ public class ExchangeRequestDTO {
     private String masterToUuid;
     private String cardToUuid;
 
-    // Getters e Setters
     public String getMasterFromUuid() {
         return masterFromUuid;
     }

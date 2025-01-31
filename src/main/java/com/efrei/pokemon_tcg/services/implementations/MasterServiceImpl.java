@@ -8,9 +8,10 @@ import com.efrei.pokemon_tcg.repositories.MasterRepository;
 import com.efrei.pokemon_tcg.services.IMasterService;
 import com.efrei.pokemon_tcg.services.IPokemonService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -91,7 +92,7 @@ public class MasterServiceImpl implements IMasterService {
                     .orElse(null);
             if (cardToToggle != null) {
                 if (primaryCards.size() >= 5) {
-                    throw new IllegalStateException("N'est pas possible d'avoir plus de 5 cartes dans le paquet primaire! Échanges d'abord une carte principale vers le paquet secondaire.");
+                    throw new IllegalStateException("Impossible d'avoir plus de 5 cartes dans le paquet principal. Veuillez échanger une carte principale avec une carte secondaire.");
                 }
 
                 secondaryCards.remove(cardToToggle);
@@ -105,6 +106,68 @@ public class MasterServiceImpl implements IMasterService {
         masterRepository.save(master);
         return true;
     }
+
+    @Override
+    @Transactional
+    public boolean challenge(String challengerUuid, String opponentUuid) {
+        Master challenger = findById(challengerUuid);
+        Master opponent = findById(opponentUuid);
+
+        if (challenger == null || opponent == null) {
+            throw new IllegalArgumentException("Un dresseur avec cet identifiant n'existe pas.");
+        }
+
+        if (challenger.getPackageCardsPrimary().size() <= 3) {
+            throw new IllegalStateException("Le challenger n'a pas suffisamment de cartes pour combattre (minimum 3 cartes).");
+        }
+        if (opponent.getPackageCardsPrimary().size() <= 3) {
+            throw new IllegalStateException("L'opposant n'a pas suffisamment de cartes pour combattre (minimum 3 cartes).");
+        }
+
+
+        boolean challengerWins = Math.random() > 0.5;
+
+        List<CardPokemon> challengerDeck = challenger.getPackageCardsPrimary();
+        List<CardPokemon> opponentDeck = opponent.getPackageCardsPrimary();
+
+        if (challengerWins) {
+            CardPokemon bestCard = findBestCard(opponentDeck);
+
+            if (bestCard != null) {
+                opponentDeck.remove(bestCard);
+
+                if (!challengerDeck.contains(bestCard)) {
+                    challengerDeck.add(bestCard);
+                }
+            }
+        } else {
+            CardPokemon bestCard = findBestCard(challengerDeck);
+
+            if (bestCard != null) {
+                challengerDeck.remove(bestCard);
+
+                if (!opponentDeck.contains(bestCard)) {
+                    opponentDeck.add(bestCard);
+                }
+            }
+        }
+
+        challenger.setPackageCardsPrimary(challengerDeck);
+        opponent.setPackageCardsPrimary(opponentDeck);
+
+        masterRepository.save(challenger);
+        masterRepository.save(opponent);
+
+        return challengerWins;
+    }
+
+
+    private CardPokemon findBestCard(List<CardPokemon> deck) {
+        return deck.stream()
+                .max((card1, card2) -> Integer.compare(card1.getStar(), card2.getStar()))
+                .orElse(null);
+    }
+
 
     @Override
     public void capturePokemon(String uuid, CapturePokemon capturePokemon) {

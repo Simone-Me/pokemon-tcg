@@ -28,8 +28,9 @@ public class CardPokemonController {
 
     @GetMapping("/random")
     public ResponseEntity<?> createRandomCard() {
-        cardPokemonService.createRandomCard();
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        CardPokemon createdCard = cardPokemonService.createRandomCard();
+        return new ResponseEntity<>(createdCard, HttpStatus.CREATED);
     }
+
 
 }

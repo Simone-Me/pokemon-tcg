@@ -16,15 +16,4 @@ public class HomeController {
         return "Hello World!";
     }
 
-    @GetMapping("/{name}")
-    public String greetings(@PathVariable String name) {
-        return "Welcome to Pokemon TCG " + name + " !";
-    }
-
-    @GetMapping("/pokemon")
-    public Pokemon pokemon() {
-        Pokemon Barbie = new Pokemon("Barbie", TypePokemon.ICE, 100, 1);
-        return Barbie;
-    }
-
 }

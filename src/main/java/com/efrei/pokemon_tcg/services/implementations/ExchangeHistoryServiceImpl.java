@@ -9,10 +9,8 @@ import com.efrei.pokemon_tcg.repositories.MasterRepository;
 import com.efrei.pokemon_tcg.services.IExchangeHistoryService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ExchangeHistoryServiceImpl implements IExchangeHistoryService {
@@ -82,19 +80,33 @@ public class ExchangeHistoryServiceImpl implements IExchangeHistoryService {
     }
 
     @Override
-    public List<ExchangeHistory> getExchangesByDate(LocalDate startDate, LocalDate endDate) {
-        return exchangeHistoryRepository.findByExchangeDateBetween(startDate, endDate);
+    public List<ExchangeHistory> getExchangesByDate(LocalDateTime startDate, LocalDateTime endDate) {
+        List<ExchangeHistory> exchanges = exchangeHistoryRepository.findByExchangeDateBetween(startDate, endDate);
+
+        if (exchanges.isEmpty()) {
+            throw new IllegalArgumentException("Il n'y a aucun exchange dans ces dates.");
+        }
+
+        return exchanges;
     }
+
 
     @Override
-    public List<ExchangeHistory> getExchangesByMasterAndDate(String masterUuid, LocalDate startDate, LocalDate endDate) {
-        List<ExchangeHistory> exchangesByMaster = getExchangesByMaster(masterUuid);
+    public List<ExchangeHistory> getExchangesByMasterAndDate(String masterUuid, LocalDateTime startDate, LocalDateTime endDate) {
+                boolean masterExists = masterRepository.existsById(masterUuid);
+        if (!masterExists) {
+            throw new IllegalArgumentException("Le master avec UUID " + masterUuid + " ne exsite pas.");
+        }
 
-        return exchangesByMaster.stream()
-                .filter(exchange -> !exchange.getExchangeDate().toLocalDate().isBefore(startDate) &&
-                        !exchange.getExchangeDate().toLocalDate().isAfter(endDate))
-                .collect(Collectors.toList());
+        List<ExchangeHistory> exchanges = exchangeHistoryRepository.findExchangesByMasterAndDateBetween(masterUuid, startDate, endDate);
+
+        if (exchanges.isEmpty()) {
+            throw new IllegalArgumentException("Aucun exchange à été trouvé par le master  " + masterUuid + " dans cette periode.");
+        }
+
+        return exchanges;
     }
+
 
     private CardPokemon findCardInMasterPackages(Master master, String cardUuid) {
         return master.getPackageCardsPrimary().stream()

@@ -21,4 +21,7 @@ public interface IMasterService {
 
     boolean toggleCard(String masterUuid, String cardId);
 
+    boolean challenge(String challengerUuid, String opponentUuid);
+
+
 }

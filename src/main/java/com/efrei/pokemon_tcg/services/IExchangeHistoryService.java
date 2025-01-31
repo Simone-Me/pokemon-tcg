@@ -3,6 +3,7 @@ package com.efrei.pokemon_tcg.services;
 import com.efrei.pokemon_tcg.models.ExchangeHistory;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IExchangeHistoryService {
@@ -11,9 +12,10 @@ public interface IExchangeHistoryService {
 
     List<ExchangeHistory> getExchangesByMaster(String masterUuid);
 
-    List<ExchangeHistory> getExchangesByDate(LocalDate startDate, LocalDate endDate);
+    List<ExchangeHistory> getExchangesByDate(LocalDateTime startDate, LocalDateTime
+            endDate);
 
-    List<ExchangeHistory> getExchangesByMasterAndDate(String masterUuid, LocalDate startDate, LocalDate endDate);
+    List<ExchangeHistory> getExchangesByMasterAndDate(String masterUuid, LocalDateTime startDate, LocalDateTime endDate);
 
 
 }

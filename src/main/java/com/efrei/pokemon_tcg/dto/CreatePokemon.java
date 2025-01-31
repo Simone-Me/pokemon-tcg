@@ -1,6 +1,7 @@
 package com.efrei.pokemon_tcg.dto;
 
 import com.efrei.pokemon_tcg.constants.TypePokemon;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.hibernate.validator.constraints.Length;
 
@@ -8,7 +9,9 @@ public class CreatePokemon {
 
     @Length(min = 3, max = 30)
     private String name;
+    @NotNull(message = "Le type ne peut pas etre vide, selectionne comme FIRE.")
     private TypePokemon type;
+    @Positive
     private int hp;
     @Positive
     private int level;
